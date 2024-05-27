@@ -25,12 +25,26 @@ pub struct Header {
 impl Header {
     /// Returns a new valid genesis header.
     fn genesis() -> Self {
-        todo!("Exercise 1")
+        Header {
+            parent: 0 as Hash,
+            height: 0u64,
+            extrinsics_root: (),
+            state_root: (),
+            consensus_digest: (),
+        }
     }
 
     /// Create and return a valid child header.
     fn child(&self) -> Self {
-        todo!("Exercise 2")
+        let g = Header::genesis();
+        let h = hash(&g);
+        Header {
+            parent: h,
+            height: 1u64,
+            extrinsics_root: (),
+            state_root: (),
+            consensus_digest: (),
+        }
     }
 
     /// Verify that all the given headers form a valid chain from this header to the tip.
@@ -38,7 +52,23 @@ impl Header {
     /// This method may assume that the block on which it is called is valid, but it
     /// must verify all of the blocks in the slice;
     fn verify_sub_chain(&self, chain: &[Header]) -> bool {
-        todo!("Exercise 3")
+        let mut parent_hash = 0;
+        for (index, block) in chain.iter().enumerate() {
+            if index == 0 {
+                parent_hash = 0;
+            }
+
+            if block.height != index as u64 {
+                return false;
+            }
+
+            if block.parent != parent_hash {
+                return false;
+            }
+
+            parent_hash = hash(block)
+        }
+        true
     }
 }
 
