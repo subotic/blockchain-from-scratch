@@ -39,7 +39,7 @@ impl Header {
         let h = hash(self);
         Header {
             parent: h,
-            height: 1u64,
+            height: self.height + 1u64,
             extrinsics_root: (),
             state_root: (),
             consensus_digest: (),
@@ -55,10 +55,12 @@ impl Header {
             if hash(self) != chain[0].parent {
                 return false;
             }
-            chain[0].verify_sub_chain(&chain[1..])
-        } else {
-            return true;
+            if self.height != chain[0].height - 1 {
+                return false;
+            }
+            return chain[0].verify_sub_chain(&chain[1..]);
         }
+        true
     }
 }
 
@@ -78,7 +80,11 @@ fn build_valid_chain_length_5() -> Vec<Header> {
 /// The chain should start with a proper genesis header,
 /// but the entire chain should NOT be valid.
 fn build_an_invalid_chain() -> Vec<Header> {
-    todo!("Exercise 5")
+    let g = Header::genesis();
+    let b1 = g.child();
+    let b2 = g.child();
+    let b3 = g.child();
+    vec![g, b1, b2, b3]
 }
 
 // To run these tests: `cargo test bc_1
