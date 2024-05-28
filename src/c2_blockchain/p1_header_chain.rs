@@ -36,8 +36,7 @@ impl Header {
 
     /// Create and return a valid child header.
     fn child(&self) -> Self {
-        let g = Header::genesis();
-        let h = hash(&g);
+        let h = hash(self);
         Header {
             parent: h,
             height: 1u64,
@@ -52,23 +51,14 @@ impl Header {
     /// This method may assume that the block on which it is called is valid, but it
     /// must verify all of the blocks in the slice;
     fn verify_sub_chain(&self, chain: &[Header]) -> bool {
-        let mut parent_hash = 0;
-        for (index, block) in chain.iter().enumerate() {
-            if index == 0 {
-                parent_hash = 0;
-            }
-
-            if block.height != index as u64 {
+        if chain.len() > 0 {
+            if hash(self) != chain[0].parent {
                 return false;
             }
-
-            if block.parent != parent_hash {
-                return false;
-            }
-
-            parent_hash = hash(block)
+            chain[0].verify_sub_chain(&chain[1..])
+        } else {
+            return true;
         }
-        true
     }
 }
 
@@ -76,7 +66,12 @@ impl Header {
 
 /// Build and return a valid chain with exactly five blocks including the genesis block.
 fn build_valid_chain_length_5() -> Vec<Header> {
-    todo!("Exercise 4")
+    let g = Header::genesis();
+    let b1 = g.child();
+    let b2 = b1.child();
+    let b3 = b2.child();
+    let b4 = b3.child();
+    vec![g, b1, b2, b3, b4]
 }
 
 /// Build and return a chain with at least three headers.
